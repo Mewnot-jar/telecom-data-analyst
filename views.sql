@@ -58,7 +58,7 @@ CREATE OR REPLACE VIEW catalogo.vw_productos AS
 		precio_lista,
 		costo,
 		ROUND((precio_lista - costo)::NUMERIC / precio_lista, 4) AS margen_porcentual
-	FROM catalogo.producto
+	FROM catalogo.producto;
 
 
 CREATE OR REPLACE VIEW operaciones.vw_ventas AS
@@ -80,7 +80,7 @@ CREATE OR REPLACE VIEW operaciones.vw_ventas AS
 		v.cantidad * p.costo AS costo_total,
 		((v.cantidad * v.precio_unitario - v.descuento) - (v.cantidad * p.costo)) AS margen
 	FROM operaciones.venta_detalle v
-	JOIN catalogo.producto p ON p.producto_id = v.producto_id
+	JOIN catalogo.producto p ON p.producto_id = v.producto_id;
 	
 --La que mas me costo, por eso lleva tanto comentario xdddd
 CREATE OR REPLACE VIEW operaciones.vw_venta_cabecera AS
@@ -120,9 +120,6 @@ CREATE OR REPLACE VIEW operaciones.vw_venta_cabecera AS
 	    v.ejecutivo_id,
 	    v.cliente_id,
 	    v.tipo_venta;
-
-
-SELECT * FROM operaciones.vw_venta_cabecera;
 
 
 
