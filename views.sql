@@ -120,6 +120,84 @@ CREATE OR REPLACE VIEW operaciones.vw_venta_cabecera AS
 	    v.ejecutivo_id,
 	    v.cliente_id,
 	    v.tipo_venta;
+-- Vista que trae a todos los clientes junto a su rango etario y comuna, regio y zona
+-- Utilzia un CTE que trae todas las columnas del cliente
+-- Ademas calcula la edad del cliente para luego utilizarse en la siguiente consulta
+
+CREATE OR REPLACE VIEW clientes.vw_clientes AS
+WITH base AS(
+	SELECT 
+		cl.*,
+		EXTRACT(YEAR FROM age(cl.fecha_nacimiento))::INT AS edad
+	FROM clientes.cliente cl
+)
+SELECT 
+	b.cliente_id,
+	b.nombre,
+	b.apellido_paterno,
+	b.apellido_materno,
+	CONCAT_WS(' ', b.nombre, b.apellido_paterno, b.apellido_materno) AS cliente,
+	b.segmento,
+	b.genero,
+	b.fecha_nacimiento,
+	b.edad,
+	CASE
+		WHEN b.edad IS NULL THEN 'Sin datos'
+		WHEN b.edad < 25 THEN '18 - 24'
+		WHEN b.edad < 35 THEN '25 - 34'
+		WHEN b.edad < 45 THEN '35 - 44'
+		WHEN b.edad < 60 THEN '45 - 59'
+		WHEN b.edad < 65 THEN '60 - 64'
+		ELSE '65+'
+	END AS tramo_etario,
+	CASE
+		WHEN b.edad IS NULL THEN 0
+		WHEN b.edad < 25 THEN 1
+		WHEN b.edad < 35 THEN 2
+		WHEN b.edad < 45 THEN 3
+		WHEN b.edad < 60 THEN 4
+		WHEN b.edad < 65 THEN 5
+	END AS tramo_orden,
+	c.comuna_id,
+	c.nombre_comuna AS comuna_cliente,
+	r.region_id,
+	r.nombre_region AS region_cliente,
+	z.zona_id,
+	z.nombre_zona AS zona_cliente
+FROM base b
+JOIN organizacion.comuna c ON c.comuna_id = b.comuna_id
+JOIN organizacion.region r ON r.region_id = c.region_id
+JOIN organizacion.zona z ON z.zona_id = r.zona_id;
+
+CREATE OR REPLACE VIEW operaciones.vw_metas AS 
+SELECT 
+	m.meta_id,
+	m.ejecutivo_id,
+	m.anio,
+	m.mes,
+	MAKE_DATE(m.anio, m.mes, 1) AS fecha_meta,
+	m.meta_planes,
+	m.meta_monto,
+	e.ejecutivo,
+	e.activo,
+	e.sucursal_id,
+	e.nombre_sucursal,
+	e.tipo_sucursal,
+	e.comuna,
+	e.region,
+	e.zona,
+	e.jefe_comercial,
+	e.gerente_comercial,
+FROM operaciones.meta_ejecutivo m
+JOIN organizacion.vw_ejecutivo e ON e.ejecutivo_id = m.ejecutivo_id;
+
+	
+
+
+
+
+
+
 
 
 
