@@ -93,3 +93,27 @@ SELECT
 FROM operaciones.vw_ventas v
 GROUP BY DATE_TRUNC('month', v.fecha_venta)
 ORDER BY mes;
+
+-- Top 10 productos vendidos por cantidad
+SELECT 
+	p.nombre_producto AS producto,
+	p.categoria,
+	sum(v.cantidad) AS unidades,
+	sum(v.monto_neto) AS monto
+FROM operaciones.vw_ventas v
+JOIN catalogo.vw_productos p ON p.producto_id = v.producto_id
+GROUP BY p.nombre_producto, p.categoria
+ORDER BY unidades DESC
+LIMIT 10;
+-- Top 10 productos vendidos por monto
+SELECT 
+	p.nombre_producto AS producto,
+	p.categoria,
+	sum(v.cantidad) AS unidades,
+	sum(v.monto_neto) AS monto
+FROM operaciones.vw_ventas v
+JOIN catalogo.vw_productos p ON p.producto_id = v.producto_id
+GROUP BY p.nombre_producto, p.categoria
+ORDER BY monto DESC
+LIMIT 10;
+		
