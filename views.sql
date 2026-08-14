@@ -189,7 +189,7 @@ SELECT
 	e.region,
 	e.zona,
 	e.jefe_comercial,
-	e.gerente_comercial,
+	e.gerente_comercial
 FROM operaciones.meta_ejecutivo m
 JOIN organizacion.vw_ejecutivo e ON e.ejecutivo_id = m.ejecutivo_id;
 
