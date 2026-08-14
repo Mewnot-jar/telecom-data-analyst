@@ -230,7 +230,60 @@ JOIN operaciones.vw_ventas v ON v.linea_id = b.linea_id
 JOIN catalogo.producto p ON p.producto_id = b.producto_id
 JOIN organizacion.vw_sucursales s ON s.sucursal_id = v.sucursal_id;
 
+-- Trae la encuesta de satisfaccion en el contexto de la venta.
+-- Trae una fila por cada encuesta y se une con vw_venta_cabecera (una fila por venta)
+-- y no a vw_ventas (una fila por linea) ya que sino cada encuesta se duplicaria por cada linea de su venta
 
+CREATE OR REPLACE VIEW operaciones.vw_nps AS
+SELECT 
+	n.encuesta_id,
+	n.venta_id,
+	n.fecha_encuesta,
+	n.canal,
+	n.puntaje,
+	n.comentario,
+	(n.comentario IS NOT NULL) AS tiene_comentario,
+	-- Clasificacion estandar del NPS (promotor, pasivo, detractor)
+	CASE
+		WHEN n.puntaje >= 9 THEN 'Promotor'
+		WHEN n.puntaje >= 7 THEN 'Pasivo'
+		ELSE 'Detractor'
+	END AS grupo_nps,
+	-- Con valor_nps podremos ver el % de promotores, pasivos y detractores mas facilmente con dax
+	-- NPS = AVERAGE(vw_nps[valor_nps]) * 100
+	CASE
+		WHEN n.puntaje >= 9 THEN 1
+		WHEN n.puntaje >= 7 THEN 0
+		ELSE -1
+	END AS valor_nps,
+	-- Contexto de la venta
+	c.fecha_venta,
+	c.tipo_venta,
+	c.plan_tier,
+	c.lleva_equipo,
+	c.lleva_seguro,
+	c.monto_neto AS monto_venta,
+	c.sucursal_id,
+	c.ejecutivo_id,
+	c.cliente_id,
+	-- Datos de la zona
+	s.nombre_sucursal,
+	s.tipo_sucursal,
+	s.comuna,
+	s.region,
+	s.zona,
+	s.jefe_comercial,
+	s.gerente_comercial
+FROM operaciones.encuesta_nps n
+JOIN operaciones.vw_venta_cabecera c ON c.venta_id = n.venta_id
+JOIN organizacion.vw_sucursales s ON s.sucursal_id = c.sucursal_id;
+	
+	
+	
+	
+	
+	
+	
 
 
 
