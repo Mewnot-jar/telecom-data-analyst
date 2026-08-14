@@ -169,6 +169,8 @@ JOIN organizacion.comuna c ON c.comuna_id = b.comuna_id
 JOIN organizacion.region r ON r.region_id = c.region_id
 JOIN organizacion.zona z ON z.zona_id = r.zona_id;
 
+-- Vista que trae las metas de cada ejecutivo junto con los datos del ejecutivo
+
 CREATE OR REPLACE VIEW operaciones.vw_metas AS 
 SELECT 
 	m.meta_id,
@@ -191,8 +193,42 @@ SELECT
 FROM operaciones.meta_ejecutivo m
 JOIN organizacion.vw_ejecutivo e ON e.ejecutivo_id = m.ejecutivo_id;
 
-	
+-- Vista que trae las bajas registradas junto con los datos de venta y sucursales
 
+CREATE OR REPLACE VIEW operaciones.vw_bajas AS
+SELECT 
+	b.baja_id,
+	b.venta_id,
+	b.linea_id,
+	b.fecha_baja,
+	b.dias_permanencia,
+	b.motivo_baja,
+	CASE
+		WHEN b.dias_permanencia < 30 THEN '1. Menos de 30 dias'
+		WHEN b.dias_permanencia < 60 THEN '2. 30 a 59 dias'
+		WHEN b.dias_permanencia < 90 THEN '3. 60 a 89 dias'
+		WHEN b.dias_permanencia < 100 THEN '4. 90 a 179 dias'
+		ELSE '5. 180 dias o mas'
+	END AS tramo_permanencia,
+	v.fecha_venta,
+	v.tipo_venta,
+	v.sucursal_id,
+	v.ejecutivo_id,
+	v.cliente_id,
+	v.monto_neto AS monto_plan,
+	p.nombre_producto AS plan,
+	p.plan_tier,
+	s.nombre_sucursal,
+	s.tipo_sucursal,
+	s.comuna,
+	s.region,
+	s.zona,
+	s.jefe_comercial,
+	s.gerente_comercial
+FROM operaciones.baja_plan b
+JOIN operaciones.vw_ventas v ON v.linea_id = b.linea_id
+JOIN catalogo.producto p ON p.producto_id = b.producto_id
+JOIN organizacion.vw_sucursales s ON s.sucursal_id = v.sucursal_id;
 
 
 
