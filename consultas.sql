@@ -83,4 +83,13 @@ JOIN operaciones.venta_detalle v ON v.ejecutivo_id = e.ejecutivo_id
 GROUP BY z.nombre_zona;
 
 
-
+-- Cantidad de ventas, lineas, monto_neto y promedio de compras por venta ordenado por cada mes
+SELECT 
+	DATE_TRUNC('month', v.fecha_venta)::DATE AS mes,
+	count(*) AS lineas,
+	count(DISTINCT v.venta_id) AS ventas,
+	sum(v.monto_neto) AS monto_neto,
+	round(sum(v.monto_neto)::NUMERIC / COUNT(DISTINCT v.venta_id), 0) AS ticket_promedio
+FROM operaciones.vw_ventas v
+GROUP BY DATE_TRUNC('month', v.fecha_venta)
+ORDER BY mes;
