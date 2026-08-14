@@ -157,6 +157,7 @@ SELECT
 		WHEN b.edad < 45 THEN 3
 		WHEN b.edad < 60 THEN 4
 		WHEN b.edad < 65 THEN 5
+		ELSE 6
 	END AS tramo_orden,
 	c.comuna_id,
 	c.nombre_comuna AS comuna_cliente,
@@ -207,7 +208,7 @@ SELECT
 		WHEN b.dias_permanencia < 30 THEN '1. Menos de 30 dias'
 		WHEN b.dias_permanencia < 60 THEN '2. 30 a 59 dias'
 		WHEN b.dias_permanencia < 90 THEN '3. 60 a 89 dias'
-		WHEN b.dias_permanencia < 100 THEN '4. 90 a 179 dias'
+		WHEN b.dias_permanencia < 180 THEN '4. 90 a 179 dias'
 		ELSE '5. 180 dias o mas'
 	END AS tramo_permanencia,
 	v.fecha_venta,
