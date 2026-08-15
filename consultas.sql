@@ -136,6 +136,4 @@ SELECT
 	round(avg(v.lleva_accesorio::INT) * 100, 1) AS pct_accesorio
 FROM operaciones.vw_venta_cabecera v
 JOIN organizacion.vw_sucursales s ON s.sucursal_id = v.sucursal_id
-GROUP BY s.tipo_sucursal
-
-SELECT * FROM operaciones.vw_venta_cabecera;
+GROUP BY s.tipo_sucursal;
