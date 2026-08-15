@@ -116,4 +116,13 @@ JOIN catalogo.vw_productos p ON p.producto_id = v.producto_id
 GROUP BY p.nombre_producto, p.categoria
 ORDER BY monto DESC
 LIMIT 10;
-		
+
+-- Trae la cantidad de clientes que pertenece a cada rango etario
+SELECT
+	cl.tramo_orden,
+	cl.tramo_etario,
+	count(*) AS clientes,
+	round(count(*) * 100.0 / sum(count(*)) OVER (), 1) AS porcentaje
+FROM clientes.vw_clientes cl
+GROUP BY cl.tramo_etario, cl.tramo_orden
+ORDER BY cl.tramo_orden ASC;
