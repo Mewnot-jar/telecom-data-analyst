@@ -137,3 +137,42 @@ SELECT
 FROM operaciones.vw_venta_cabecera v
 JOIN organizacion.vw_sucursales s ON s.sucursal_id = v.sucursal_id
 GROUP BY s.tipo_sucursal;
+
+--Consulta que trae lo vendido vs lo esperado de planes, y monto por cada zona.
+WITH se_vendio AS (
+	SELECT 
+		s.zona,
+		count(*) FILTER (WHERE v.categoria_producto = 'Plan') AS cantidad_planes,
+		sum(v.monto_neto) AS monto_real
+	FROM operaciones.vw_ventas v
+	JOIN organizacion.vw_sucursales s ON s.sucursal_id = v.sucursal_id
+	GROUP BY s.zona
+),
+meta AS(
+	SELECT 
+		zona,
+		sum(meta_planes) AS meta_planes,
+		sum(meta_monto) AS meta_monto
+	FROM operaciones.vw_metas
+	GROUP BY zona
+)
+
+SELECT 
+	m.zona,
+	se.cantidad_planes,
+	m.meta_planes,
+	ROUND(se.cantidad_planes * 100.0 / m.meta_planes, 1) AS pct_cumplimiento_planes,
+	se.monto_real,
+	m.meta_monto,
+	ROUND(se.monto_real * 100.0 / m.meta_monto, 1) AS pct_cumplimiento_monto
+FROM se_vendio se
+JOIN meta m ON m.zona = se.zona
+ORDER BY pct_cumplimiento_planes DESC; 
+
+	
+	
+	
+	
+	
+	
+	
