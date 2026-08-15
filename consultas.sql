@@ -1,4 +1,6 @@
 -- Todas las tablas y vistas con su cantidad de columnas (no tenia idea que se podia hacer esto XD)
+-- BLOQUE 1: Inventario del modelo
+-- Que tablas y vistas existen, con su cantidad de columnas.
 SELECT 
 	table_schema, 
 	table_name, 
@@ -8,6 +10,8 @@ SELECT
 FROM information_schema.tables t
 WHERE table_schema IN ('organizacion', 'catalogo', 'clientes', 'operaciones')
 ORDER BY table_schema, table_type, table_name;
+
+-- BLOQUE 2: contenido de cada tabla
 
 -- Todos los productos
 SELECT * FROM catalogo.producto p
@@ -67,6 +71,7 @@ SELECT * FROM organizacion.ejecutivo e
 ORDER BY e.ejecutivo_id
 LIMIT 20;
 
+-- BLOQUE 3: Verificacion de relaciones
 -- Cantidad de ventas, monto neto, sucursales, ejecutivos por cada zona
 SELECT 
 	z.nombre_zona,
@@ -82,7 +87,6 @@ JOIN organizacion.ejecutivo e ON e.sucursal_id = s.sucursal_id
 JOIN operaciones.venta_detalle v ON v.ejecutivo_id = e.ejecutivo_id
 GROUP BY z.nombre_zona;
 
-
 -- Cantidad de ventas, lineas, monto_neto y promedio de compras por venta ordenado por cada mes
 SELECT 
 	DATE_TRUNC('month', v.fecha_venta)::DATE AS mes,
@@ -94,6 +98,8 @@ FROM operaciones.vw_ventas v
 GROUP BY DATE_TRUNC('month', v.fecha_venta)
 ORDER BY mes;
 
+-- Dos tipos de TOP El ranking cambia por completo al cambiar el ORDER BY
+-- Los planes lideran en unidades y los equipos gama alta lideran en facturacion
 -- Top 10 productos vendidos por cantidad
 SELECT 
 	p.nombre_producto AS producto,
@@ -116,7 +122,7 @@ JOIN catalogo.vw_productos p ON p.producto_id = v.producto_id
 GROUP BY p.nombre_producto, p.categoria
 ORDER BY monto DESC
 LIMIT 10;
-
+-
 -- Trae la cantidad de clientes que pertenece a cada rango etario
 SELECT
 	cl.tramo_orden,
@@ -128,6 +134,9 @@ GROUP BY cl.tramo_etario, cl.tramo_orden
 ORDER BY cl.tramo_orden ASC;
 
 -- Cantidad de ventas por tipo de sucursal y su porcentaje de equipo, seguro, accesorio
+-- Que porcentaje de la venta llevo equipo, seguro o accesorio
+-- Como las banderas son booleanas, al convertirse en entero quedan True=1 False=0,
+-- el promedio de la columna es la proporcion
 SELECT 
 	s.tipo_sucursal,
 	count(*) AS ventas,
@@ -168,7 +177,8 @@ SELECT
 FROM se_vendio se
 JOIN meta m ON m.zona = se.zona
 ORDER BY pct_cumplimiento_planes DESC; 
---
+
+-- Consulta de analisis de churn
 SELECT 
 	b.motivo_baja,
 	count(*) AS cantidad_bajas,
@@ -203,16 +213,4 @@ SELECT
 	round(b.cantidad_planes_baja * 100.0 / v.cantidad_planes_vendidos, 1) AS pct_tasa_baja
 FROM vendidos v
 JOIN bajas b ON b.plan_tier = v.plan_tier
-ORDER BY v.plan_tier ASC
-
-
-
-
-
-	
-	
-	
-	
-	
-	
-	
+ORDER BY v.plan_tier ASC;
