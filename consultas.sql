@@ -126,3 +126,16 @@ SELECT
 FROM clientes.vw_clientes cl
 GROUP BY cl.tramo_etario, cl.tramo_orden
 ORDER BY cl.tramo_orden ASC;
+
+-- Cantidad de ventas por tipo de sucursal y su porcentaje de equipo, seguro, accesorio
+SELECT 
+	s.tipo_sucursal,
+	count(*) AS ventas,
+	round(avg(v.lleva_equipo::INT) * 100, 1) AS pct_equipo,
+	round(avg(v.lleva_seguro::INT) * 100, 1) AS pct_seguro,
+	round(avg(v.lleva_accesorio::INT) * 100, 1) AS pct_accesorio
+FROM operaciones.vw_venta_cabecera v
+JOIN organizacion.vw_sucursales s ON s.sucursal_id = v.sucursal_id
+GROUP BY s.tipo_sucursal
+
+SELECT * FROM operaciones.vw_venta_cabecera;
