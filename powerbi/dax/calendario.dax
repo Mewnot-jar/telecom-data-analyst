@@ -1,0 +1,16 @@
+Calendario = 
+VAR Inicio = DATE(2025, 1, 1)
+VAR Fin = DATE(2025,12,31)
+RETURN
+ADDCOLUMNS(
+    CALENDAR(Inicio, Fin),
+    "Año", YEAR([Date]),
+    "Trimestre", "Q" & QUARTER([Date]),
+    "NumeroMes", MONTH([Date]),
+    "NombreMes", FORMAT([Date], "MMMM"),
+    "MesCorto", FORMAT([Date], "MMM"),
+    "AñoMes", FORMAT([Date], "YYYY-MM"),
+    "NumeroDiaSemana", WEEKDAY([Date], 2),
+    "DiaSemana", FORMAT([Date], "dddd"),
+    "EsFinDeSemana", WEEKDAY([Date], 2) > 5
+)
