@@ -168,6 +168,46 @@ SELECT
 FROM se_vendio se
 JOIN meta m ON m.zona = se.zona
 ORDER BY pct_cumplimiento_planes DESC; 
+--
+SELECT 
+	b.motivo_baja,
+	count(*) AS cantidad_bajas,
+	round(avg(b.dias_permanencia), 1) AS promedio_dias_permanencia,
+	round(count(*) * 100.0 / sum(count(*)) OVER (), 1) AS pct_del_total
+FROM operaciones.vw_bajas b
+GROUP BY b.motivo_baja
+ORDER BY cantidad_bajas DESC;
+
+WITH vendidos AS (
+	SELECT
+		p.plan_tier,
+		count(*) AS cantidad_planes_vendidos
+	FROM operaciones.vw_ventas v
+	JOIN catalogo.producto p ON p.producto_id = v.producto_id
+	WHERE v.categoria_producto = 'Plan'
+	GROUP BY p.plan_tier
+),
+bajas AS (
+	SELECT 
+		b.plan_tier,
+		count(*) AS cantidad_planes_baja,
+		round(avg(b.dias_permanencia), 1) AS permanencia_promedio
+	FROM operaciones.vw_bajas b
+	GROUP BY b.plan_tier
+)
+SELECT 
+	v.plan_tier,
+	v.cantidad_planes_vendidos,
+	b.cantidad_planes_baja,
+	b.permanencia_promedio,
+	round(b.cantidad_planes_baja * 100.0 / v.cantidad_planes_vendidos, 1) AS pct_tasa_baja
+FROM vendidos v
+JOIN bajas b ON b.plan_tier = v.plan_tier
+ORDER BY v.plan_tier ASC
+
+
+
+
 
 	
 	
